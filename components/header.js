@@ -114,7 +114,9 @@ class Header extends HTMLElement {
                     color: #161880;
                     font-weight: 500;
                 }
-
+                .view-orders-btn{
+                    margin:0px;
+                }
                 .view-orders-btn, .cart-btn, .profile-btn {
                     padding: 8px 16px;
                     background-color: #161880;
