@@ -1,0 +1,58 @@
+# Create a simulator object
+set ns [new Simulator]
+
+# Open the trace and NAM (Network Animator) output files
+set tracefile [open stopwait_trace.tr w]
+set namfile [open stopwait_animation.nam w]
+$ns trace-all $tracefile
+$ns namtrace-all $namfile
+
+# Create nodes
+set sender [$ns node]
+set receiver [$ns node]
+
+# Create duplex link between sender and receiver
+$ns duplex-link $sender $receiver 1Mb 10ms DropTail
+
+# Define colors for NAM visualization
+$sender color "blue"
+$receiver color "red"
+
+# Create agents
+set tcp [new Agent/TCP]
+set sink [new Agent/TCPSink]
+
+# Attach agents to nodes
+$ns attach-agent $sender $tcp
+$ns attach-agent $receiver $sink
+
+# Connect the agents
+$ns connect $tcp $sink
+
+# Set TCP parameters for Stop and Wait-like behavior
+$tcp set window_ 1         
+$tcp set packetSize_ 1000
+
+# Create an application to send data
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+
+# Schedule events
+$ns at 0.5 "$ftp start"
+$ns at 5.0 "$ftp stop"
+
+# Define finish procedure
+proc finish {} {
+    global ns tracefile namfile
+    $ns flush-trace
+    close $tracefile
+    close $namfile
+    exec nam stopwait_animation.nam &
+    exit 0
+}
+
+# Schedule finish
+$ns at 6.0 "finish"
+
+# Run simulation
+$ns run
